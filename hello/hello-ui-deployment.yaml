@@ -16,7 +16,7 @@ spec:
       imagePullSecrets:
       - name: dockerhub-secret
       containers:
-      - image: ialbakri/pipeline:latest
+      - image: hub.docker.com/r/ialbakri/pipeline:latest
         name: hello-ui
         ports:
         - containerPort: 443
