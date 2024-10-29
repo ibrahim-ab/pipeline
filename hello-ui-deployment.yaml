@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-ui
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: hello-ui
+  template:
+    metadata:
+      labels:
+        app: hello-ui
+    spec:
+      containers:
+      - image: https://hub.docker.com/layers/ialbakri/pipeline/0.0.1/images/sha256-                 ef674f7290a2d0747c5615d6746e2770c659c2b1811e807365bd2a9f450b4ed1?context=explore
+        name: hello-ui
+        ports:
+        - containerPort: 443
