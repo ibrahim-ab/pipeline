@@ -14,9 +14,9 @@ spec:
         app: hello-ui
     spec:
       imagePullSecrets:
-        - name: dockerhub-secret
+      - name: dockerhub-secret
       containers:
-      - image: ialbakri/pipeline:latest
+      - image: sha256:ef674f7290a2d0747c5615d6746e2770c659c2b1811e807365bd2a9f450b4ed1
         name: hello-ui
         ports:
         - containerPort: 80
