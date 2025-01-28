@@ -34,17 +34,16 @@ pipeline {
         stage('Check Commit Message') {
     steps {
         script {
-            // Fetch the latest commit message
-            def commitMessage = sh(
-                script: "git log -1 --pretty=%B",
-                returnStdout: true
-            ).trim()
-
-            // Check for the skip marker
-            if (commitMessage.contains('[skip-pipeline]')) {
-                echo "Skipping pipeline due to '[skip-pipeline]' in commit message."
-                currentBuild.result = 'SUCCESS'
-                error("Pipeline terminated: Skipped due to commit message.")
+            dir('pipeline') { // Ensure you are in the cloned repo directory
+                def commitMessage = sh(
+                    script: "git log -1 --pretty=%B",
+                    returnStdout: true
+                ).trim()
+                if (commitMessage.contains('[skip-pipeline]')) {
+                    echo "Skipping pipeline due to '[skip-pipeline]' in commit message."
+                    currentBuild.result = 'SUCCESS'
+                    error("Pipeline terminated: Skipped due to commit message.")
+                }
             }
         }
     }
