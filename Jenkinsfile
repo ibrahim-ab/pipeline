@@ -8,6 +8,25 @@ pipeline {
         DOCKER_REPO = 'ialbakri/pipeline'
     }
     stages {
+
+stage('Check Commit Message') {
+    steps {
+        script {
+            dir('pipeline') { // Ensure you are in the cloned repo directory
+                def commitMessage = sh(
+                    script: "git log -1 --pretty=%B",
+                    returnStdout: true
+                ).trim()
+                if (commitMessage.contains('[skip-pipeline]')) {
+                    echo "Skipping pipeline due to '[skip-pipeline]' in commit message."
+                    currentBuild.result = 'SUCCESS'
+                    error("Pipeline terminated: Skipped due to commit message.")
+                }
+            }
+        }
+    }
+}
+        
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -31,23 +50,7 @@ pipeline {
     }
 }
 
-        stage('Check Commit Message') {
-    steps {
-        script {
-            dir('pipeline') { // Ensure you are in the cloned repo directory
-                def commitMessage = sh(
-                    script: "git log -1 --pretty=%B",
-                    returnStdout: true
-                ).trim()
-                if (commitMessage.contains('[skip-pipeline]')) {
-                    echo "Skipping pipeline due to '[skip-pipeline]' in commit message."
-                    currentBuild.result = 'SUCCESS'
-                    error("Pipeline terminated: Skipped due to commit message.")
-                }
-            }
-        }
-    }
-}
+        
 
 
         stage('Set Tag Version') {
