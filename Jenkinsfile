@@ -31,6 +31,25 @@ pipeline {
     }
 }
 
+        stage('Check Commit Message') {
+    steps {
+        script {
+            // Fetch the latest commit message
+            def commitMessage = sh(
+                script: "git log -1 --pretty=%B",
+                returnStdout: true
+            ).trim()
+
+            // Check for the skip marker
+            if (commitMessage.contains('[skip-pipeline]')) {
+                echo "Skipping pipeline due to '[skip-pipeline]' in commit message."
+                currentBuild.result = 'SUCCESS'
+                error("Pipeline terminated: Skipped due to commit message.")
+            }
+        }
+    }
+}
+
 
         stage('Set Tag Version') {
             steps {
@@ -99,7 +118,7 @@ pipeline {
                             sh 'git config user.name "jenkins-bot"'
                             sh 'git config user.email "jenkins-bot@example.com"'
                             sh 'git add hello/hello-ui-deployment.yaml'
-                            sh "git commit -m 'Update deployment image to version ${TAG_VERSION}'"
+                            sh "git commit -m 'Update deployment image to version ${TAG_VERSION} [skip-pipeline]'"
                             sh "git push origin ${git_branch_name}"
                         }
                     }
