@@ -116,7 +116,8 @@ stage('Check Commit Message') {
             steps {
                 script {
                     dir('pipeline') {
-                        withCredentials([usernamePassword(credentialsId: 'Github_Credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                      # withCredentials([usernamePassword(credentialsId: 'Github_Credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')])
+                        withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
                             sh 'git config user.name "jenkins-bot"'
                             sh 'git config user.email "jenkins-bot@example.com"'
                             sh 'git add hello/hello-ui-deployment.yaml'
