@@ -113,17 +113,17 @@ stage('Check Commit Message') {
         usernameVariable: 'GIT_USER',
         passwordVariable: 'GITHUB_TOKEN'
       )]) {
-        sh """
+        // Use a single‑quoted shell block so Groovy doesn't try to substitute ${GITHUB_TOKEN}
+        sh '''
           git config user.name  "jenkins-bot"
           git config user.email "jenkins-bot@example.com"
 
           git add hello/hello-ui-deployment.yaml
-          git commit -m "Update deployment image to version ${TAG_VERSION} [skip-pipeline]"
+          git commit -m "Update deployment image to version '"${TAG_VERSION}"' [skip-pipeline]"
 
-          git remote set-url origin https://${GIT_USER}:${GITHUB_TOKEN}@github.com/ibrahim-ab/pipeline.git
-
-          git push origin ${git_branch_name}
-        """
+          # Push by embedding the creds in the URL at shell‑runtime
+          git push https://$GIT_USER:$GITHUB_TOKEN@github.com/ibrahim-ab/pipeline.git ''' + git_branch_name + '''
+        '''
       }
     }
   }
