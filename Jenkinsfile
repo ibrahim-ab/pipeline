@@ -108,7 +108,11 @@ stage('Check Commit Message') {
         stage('Commit and Push Changes') {
   steps {
     dir('pipeline') {
-      withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+      withCredentials([usernamePassword(
+        credentialsId: 'Github_Credentials',
+        usernameVariable: 'GIT_USER',
+        passwordVariable: 'GITHUB_TOKEN'
+      )]) {
         sh """
           git config user.name  "jenkins-bot"
           git config user.email "jenkins-bot@example.com"
@@ -116,8 +120,7 @@ stage('Check Commit Message') {
           git add hello/hello-ui-deployment.yaml
           git commit -m "Update deployment image to version ${TAG_VERSION} [skip-pipeline]"
 
-          # reset origin to include your token
-          git remote set-url origin https://${GITHUB_TOKEN}@github.com/ibrahim-ab/pipeline.git
+          git remote set-url origin https://${GIT_USER}:${GITHUB_TOKEN}@github.com/ibrahim-ab/pipeline.git
 
           git push origin ${git_branch_name}
         """
