@@ -35,19 +35,12 @@ stage('Check Commit Message') {
         }
 
         stage('Checkout Git Repo') {
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'Github_Credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                sh 'git config --global http.sslVerify false'
-                sh "git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO} || exit 1"
-            }
-            dir('pipeline') {
-                sh 'ls -la'  // Confirm repo clone
-                sh 'git status'
-                sh 'git branch'
-            }
-        }
+  steps {
+    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+      // clone using only the token
+      sh "git clone https://${GITHUB_TOKEN}@github.com/ibrahim-ab/pipeline.git pipeline"
     }
+  }
 }
 
         
@@ -113,20 +106,24 @@ stage('Check Commit Message') {
         }
 
         stage('Commit and Push Changes') {
-            steps {
-                script {
-                    dir('pipeline') {
-                      /* withCredentials([usernamePassword(credentialsId: 'Github_Credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) */
-                        withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
-                            sh 'git config user.name "jenkins-bot"'
-                            sh 'git config user.email "jenkins-bot@example.com"'
-                            sh 'git add hello/hello-ui-deployment.yaml'
-                            sh "git commit -m 'Update deployment image to version ${TAG_VERSION} [skip-pipeline]'"
-                            sh "git push origin ${git_branch_name}"
-                        }
-                    }
-                }
-            }
-        }
+  steps {
+    dir('pipeline') {
+      withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+        sh """
+          git config user.name  "jenkins-bot"
+          git config user.email "jenkins-bot@example.com"
+
+          git add hello/hello-ui-deployment.yaml
+          git commit -m "Update deployment image to version ${TAG_VERSION} [skip-pipeline]"
+
+          # reset origin to include your token
+          git remote set-url origin https://${GITHUB_TOKEN}@github.com/ibrahim-ab/pipeline.git
+
+          git push origin ${git_branch_name}
+        """
+      }
+    }
+  }
+}
     }
 }
